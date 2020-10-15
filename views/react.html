@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>上传文件测试</title>
+		<script src="https://cdn.staticfile.org/react/16.4.0/umd/react.development.js"></script>
+		<script src="https://cdn.staticfile.org/react-dom/16.4.0/umd/react-dom.development.js"></script>
+		<script src="https://cdn.staticfile.org/babel-standalone/6.26.0/babel.min.js"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.20.0/axios.min.js"></script>
+		<style>
+			*{margin: 0;padding: 0;}
+			.box{
+				margin-left: 200px;
+			}
+      #input_file{
+        opacity:0;
+      }
+			.upload {
+				width: 100px;
+				height: 100px;
+				border: 1px solid #222;
+				border-radius: 4px;
+				cursor: pointer;
+        text-align: center;
+        line-height: 100px;
+			}
+			.li {
+				list-style: none;
+				display: flex;
+			}
+			.delete{
+				cursor: pointer;
+				width: 50px;
+				height: 20px;
+				line-height: 20px;
+				border: 1px solid #0094ff;
+				border-radius: 4px;
+				text-align: center;
+				margin-left: 30px;
+				font-size: 14px;
+				background-color: #0094ff;
+				color: #fff;
+				margin-bottom: 10px;
+			}
+			.delete:hover{
+				background-color: #fff;
+				color: #0094ff;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="example"></div>
+		<script type="text/babel">
+			class Upload extends React.Component {
+				constructor(props) {
+					super(props);
+					this.state = { file: null, files: [] };
+				}
+				inputFileClick = () => {
+          let input_file = this.refs.input_file;
+          input_file.click();
+				}
+        upload = () => {
+					let that = this;
+          let file = this.refs.input_file.files[0];
+					let fm = new FormData();
+					fm.set('file', file)
+          axios.post('/upload/image',fm,{
+						headers: {
+							'Content-type': 'multipart/form-data'
+						}
+					}).then(res=>{
+						let temp = that.state.files;
+						temp.push(res.data.path)
+            that.setState({
+							files: temp
+						})
+          })
+        }
+				delete(url) {
+					let name = url;
+					axios.post('/delete/image',{name}).then(res=>{
+						console.log(res);
+					})
+				}
+				render() {
+					return (
+						<div className="box">
+							<input type="file" id="input_file" ref="input_file"  onChange={this.upload}/>
+							<div
+								className="upload"
+								onClick={this.inputFileClick}
+							>
+								上传
+							</div>
+							<ul>{
+								this.state.files.map(file => {
+									return (<li key={file} className="li">
+										文件名 ===> {file} 
+										<div className="delete" onClick={this.delete.bind(this, file)}>删除</div>
+									</li>)
+								})
+							}</ul>
+						</div>
+					);
+				}
+			}
+			ReactDOM.render(<Upload />, document.getElementById("example"));
+		</script>
+	</body>
+</html>
