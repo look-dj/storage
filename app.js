@@ -7,7 +7,9 @@ var ejs = require('ejs');
 var bodyParser = require('body-parser')
 let router = require('./routes/index.js'); // 路由
 let config = require('./config/config.js'); // 配置
+let plugins = require('./plugins/index.js');
 config(app);
+plugins(app);
 app.set('views', path.join(__dirname, 'views'));
 //设置模板引擎为ejs
 app.set('view engine', 'ejs');
