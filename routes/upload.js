@@ -52,7 +52,7 @@ async function validAuth(app, req) {
 	if (!account) return false;
 	try {
 		let accountResult = await app.mysql.query(
-			"SELECT account FROM USER WHERE account = ?;",
+			"SELECT account FROM `user` WHERE account = ?;",
 			[account]
 		);
 		if (!accountResult[0]) return false;

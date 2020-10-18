@@ -2,7 +2,7 @@ module.exports = (app) => {
 	app.post("/storage/login", async function (req, res) {
 		let { account, pass } = req.body;
 		// 获得用户信息
-		let info = await getUserInfo(app, account);
+    let info = await getUserInfo(app, account);
 		// 验证用户信息
 		if (info && String(info.pass) === String(pass)) {
 			let token = app.util.encode(account, app.config.tokenSecret);
@@ -15,7 +15,7 @@ module.exports = (app) => {
 async function getUserInfo(app, account) {
 	try {
 		let userResult = await app.mysql.query(
-			"SELECT * FROM USER WHERE account = ?;",
+			"SELECT * FROM `user` WHERE account = ?;",
 			[account]
 		);
 		if (!userResult) return false;
