@@ -25,7 +25,12 @@
 			#input_file {
 				opacity: 0;
 			}
+			.file_box {
+				height: 100px;
+			}
 			.upload {
+				display: inline-block;
+				vertical-align: top;
 				width: 100px;
 				height: 100px;
 				border: 1px solid #222;
@@ -33,6 +38,15 @@
 				cursor: pointer;
 				text-align: center;
 				line-height: 100px;
+			}
+			.img_box {
+				margin-left: 10px;
+				height: 100px;
+				display: inline-block;
+				vertical-align: top;
+			}
+			.img_box > img {
+				height: 100%;
 			}
 			.li {
 				display: flex;
@@ -83,7 +97,7 @@
 
 			.btn {
 				display: block;
-				width: 80px;
+				min-width: 80px;
 				height: 30px;
 				line-height: 30px;
 				background-color: #0094ff;
@@ -95,13 +109,6 @@
 			}
 			.login_btn {
 				margin: 0 auto;
-			}
-			.config_view {
-				word-wrap: break-word;
-				word-break: normal;
-				max-width: 700px;
-				margin-left: 100px;
-				margin-top: 50px;
 			}
 			.mt-1 {
 				margin-top: 10px;
@@ -124,7 +131,6 @@
 	</head>
 	<body>
 		<div id="hint"></div>
-		<div class="config_view">{{config}}</div>
 		<div id="example"></div>
 		<script>
 			function hint(msg, time = 1500) {
@@ -141,20 +147,18 @@
 			class Upload extends React.Component {
 				constructor(props) {
 					super(props);
-					this.state = { file: null, files: [] };
+					this.state = { file: null, files: [], src: "" ,fileKey: 0};
 				}
 				inputFileClick = () => {
 					let input_file = this.refs.input_file;
 					input_file.click();
 				};
-				upload = () => {
+				upload() {
 					let that = this;
-
 					let token = document.querySelector("#token_text").value;
 					if (!token) return hint("请先登录！");
-					let file = that.refs.input_file.files[0];
 					let fm = new FormData();
-					fm.set("file", file);
+					fm.set("file", that.state.file);
 					axios
 						.post("/storage/upload/image", fm, {
 							headers: {
@@ -170,10 +174,11 @@
 								temp.push(res.data.path);
 								that.setState({
 									files: temp,
-								});
+									file: null,
+                });
 							}
 						});
-				};
+				}
 				delete(url) {
 					let token = document.querySelector("#token_text").value;
 					if (!token) return hint("请先登录！");
@@ -210,27 +215,49 @@
 							console.log(res.data);
 						});
 				}
+				getFile() {
+					let that = this;
+					let file = that.refs.input_file.files[0];
+					console.log(file);
+					let src = URL.createObjectURL(file);
+					that.setState({
+						src,
+						file,
+					});
+				}
 				render() {
 					return (
 						<div className="box">
-							<input
-								type="file"
-								id="input_file"
-								ref="input_file"
-								onChange={this.upload}
-							/>
-							<div
-								className="upload"
-								onClick={this.inputFileClick}
+							<div className="file_box">
+								<input
+									type="file"
+									id="input_file"
+                  ref="input_file"
+                  key={this.state.fileKey}
+									onChange={this.getFile.bind(this)}
+								/>
+								<div
+									className="upload"
+									onClick={this.inputFileClick}
+								>
+									选择图片
+								</div>
+								<div className="img_box">
+									<img src={this.state.src} alt="" />
+								</div>
+							</div>
+							<button
+								className="btn"
+								onClick={this.upload.bind(this)}
 							>
 								上传
-							</div>
+							</button>
 							<ul>
 								{this.state.files.map((file) => {
 									return (
 										<li key={file} className="li">
 											<div className="filename">
-												文件名 ===> {file}
+												文件名{" ===>" + file}
 											</div>
 											<a
 												href={file}
@@ -265,7 +292,11 @@
 			class Login extends React.Component {
 				constructor(props) {
 					super(props);
-					this.state = { account: "root", pass: "4297f44b13955235245b2497399d7a93", token: "" };
+					this.state = {
+						account: "root",
+						pass: "4297f44b13955235245b2497399d7a93",
+						token: "",
+					};
 				}
 				inputAccount(e) {
 					this.setState({
@@ -286,12 +317,15 @@
 							if (res.data.code !== 200)
 								return console.log(res.data.msg);
 							that.setState({
-								token: res.data.storageToken,
+								token: res.data.token,
 							});
 						});
 				}
 				setToken(e) {
-					console.log(e.target.value);
+          console.log(e.target.value);
+          this.setState({
+            token: e.target.value
+          })
 				}
 				render() {
 					return (
@@ -316,7 +350,7 @@
 									登录
 								</button>
 								<input
-									type="hidden"
+									type="text"
 									id="token_text"
 									value={this.state.token}
 									onChange={this.setToken.bind(this)}
