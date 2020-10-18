@@ -70,7 +70,7 @@
           let file = this.refs.input_file.files[0];
 					let fm = new FormData();
 					fm.set('file', file)
-          axios.post('/upload/image',fm,{
+          axios.post('/storage/upload/image',fm,{
 						headers: {
 							'Content-type': 'multipart/form-data'
 						}
@@ -84,7 +84,7 @@
         }
 				delete(url) {
 					let name = url;
-					axios.post('/delete/image',{name}).then(res=>{
+					axios.post('/storage/delete/image',{name}).then(res=>{
 						console.log(res);
 					})
 				}
