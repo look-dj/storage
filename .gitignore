@@ -13,3 +13,5 @@ run/
 typings/
 .nyc_output/
 app/public/uploads/
+.github/
+test/
