@@ -2,15 +2,17 @@ const path = require("path");
 const fs = require("fs");
 module.exports = (app) => {
 	app.post("/storage/upload/image", async function (req, res) {
-    // 存到数据库
+		// 存到数据库
+		let auth = await validAuth(app, req);
+		if (!auth) return res.send({ msg: "暂时还没有权限", code: 351 });
 		let insertId = await saveFileToDb(app, req);
 		if (!insertId) {
 			console.log("保存图片信息到数据库失败");
-    }
-    // 存到服务器
+		}
+		// 存到服务器
 		let resultFile = await saveFileToServer(app, req, res, insertId);
-    if (!insertId) return;
-    // 更新数据库里的信息
+		if (!insertId) return;
+		// 更新数据库里的信息
 		let resultUpdate = await updateFileMsg(app, [
 			resultFile.name,
 			resultFile.link,
@@ -24,22 +26,42 @@ module.exports = (app) => {
 	app.post("/storage/delete/image", async function (req, res) {
 		// 没有权限
 		// 开始删除
+		let auth =await validAuth(app, req);
+		if (!auth) return res.send({ msg: "暂时还没有权限", code: 351 });
 		let name = req.body.name;
-    let filename = path.parse(name).base;
-    // 删除文件
+		let filename = path.parse(name).base;
+		// 删除文件
 		let resultDelete = await deleteFileToServer(app, res, filename);
 		if (resultDelete.code === 200) {
-    // 删除数据库里的数据
-      let resultDelete1 = await deleteFileToDb(app, filename);
-      if(resultDelete1){
-        console.log('成功在数据库里删除一条数据');
-      }else{
-        console.log('在数据库里删除失败');
-      }
+			// 删除数据库里的数据
+			let resultDelete1 = await deleteFileToDb(app, filename);
+			if (resultDelete1) {
+				console.log("成功在数据库里删除一条数据");
+			} else {
+				console.log("在数据库里删除失败");
+			}
 		}
 		// 更新数据库信息
 	});
 };
+async function validAuth(app, req) {
+	let token = req.headers.authorization;
+  if (!token) return false;
+  token = token.split(' ')[1];
+	let account = app.util.decode(token, app.config.tokenSecret);
+	if (!account) return false;
+	try {
+		let accountResult = await app.mysql.query(
+			"SELECT account FROM USER WHERE account = ?;",
+			[account]
+		);
+		if (!accountResult[0]) return false;
+		return true;
+	} catch (e) {
+		console.log(e);
+		return false;
+	}
+}
 function saveFileToServer(app, req, res, id) {
 	return new Promise((resolve, reject) => {
 		let _file = req.files[0];
@@ -81,16 +103,16 @@ function deleteFileToServer(app, res, name) {
 async function deleteFileToDb(app, name) {
 	name = name.split(".")[0];
 	name = app.util.decode(name, app.config.fileSecret);
-  let id = name.split("_")[0];
+	let id = name.split("_")[0];
 	try {
 		let resultDelete = await app.mysql.query(
 			"DELETE FROM file_list where id=?;",
 			[id]
 		);
-		if(resultDelete.affectedRows === 1){
-      return true
-    }
-    return false;
+		if (resultDelete.affectedRows === 1) {
+			return true;
+		}
+		return false;
 	} catch (e) {
 		console.log(e);
 		return false;

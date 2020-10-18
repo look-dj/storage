@@ -5,6 +5,7 @@ const config = {
 	uploadPath: site + "/public/upload/",
   savePath: path.resolve(__dirname, '../upload/'),
   fileSecret: "AtYCme5tnffR",
+  userSecret: 'SXadZ3Qk5EA6',
 	mysql: {
 		host: "127.0.0.1",
 		port: "3306",
@@ -15,6 +16,6 @@ const config = {
 }
 
 module.exports = (app) => {
-	// console.log(config);
+  // console.log(config);
 	app.config = config;
 }

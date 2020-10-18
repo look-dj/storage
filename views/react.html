@@ -8,31 +8,36 @@
 		<script src="https://cdn.staticfile.org/babel-standalone/6.26.0/babel.min.js"></script>
 		<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.20.0/axios.min.js"></script>
 		<style>
-			*{margin: 0;padding: 0;}
-      .config_view{
-        margin-left: 100px;
-        margin-top: 50px;
-      }
-			.box{
+			body {
+				/* position: relative; */
+				width: 100%;
+			}
+			* {
+				margin: 0;
+				padding: 0;
+				outline: none;
+				list-style: none;
+				/* text-decoration: none; */
+			}
+			.box {
 				margin-left: 100px;
 			}
-      #input_file{
-        opacity:0;
-      }
+			#input_file {
+				opacity: 0;
+			}
 			.upload {
 				width: 100px;
 				height: 100px;
 				border: 1px solid #222;
 				border-radius: 4px;
 				cursor: pointer;
-        text-align: center;
-        line-height: 100px;
+				text-align: center;
+				line-height: 100px;
 			}
 			.li {
-				list-style: none;
 				display: flex;
 			}
-			.delete{
+			.delete {
 				cursor: pointer;
 				width: 50px;
 				height: 20px;
@@ -46,15 +51,92 @@
 				color: #fff;
 				margin-bottom: 10px;
 			}
-			.delete:hover{
+			.delete:hover {
 				background-color: #fff;
 				color: #0094ff;
+			}
+			.filename {
+				max-width: 700px;
+				word-wrap: break-word;
+				word-break: normal;
+			}
+			.login_box {
+				margin-left: 100px;
+			}
+			.login_form {
+				margin-top: 20px;
+				width: 200px;
+			}
+			.login_form > input {
+				display: block;
+				padding: 5px;
+				padding-right: 0;
+				display: block;
+				margin: 0 auto;
+				margin-bottom: 10px;
+				border-radius: 4px;
+				border: 1px solid #888;
+			}
+			.login_form > input:focus {
+				border: 1px solid #0094ff;
+			}
+
+			.btn {
+				display: block;
+				width: 80px;
+				height: 30px;
+				line-height: 30px;
+				background-color: #0094ff;
+				color: #fff;
+				border: 1px solid #0094ff;
+				border-radius: 4px;
+				text-align: center;
+				cursor: pointer;
+			}
+			.login_btn {
+				margin: 0 auto;
+			}
+			.config_view {
+				word-wrap: break-word;
+				word-break: normal;
+				max-width: 700px;
+				margin-left: 100px;
+				margin-top: 50px;
+			}
+			.mt-1 {
+				margin-top: 10px;
+			}
+			#hint {
+				position: absolute;
+				top: 50px;
+				left: 50%;
+				transform: translateX(-50%);
+				padding: 5px 15px;
+				min-width: 200px;
+				background-color: #07c160;
+				border-radius: 4px;
+				font-size: 14px;
+				color: #fff;
+				z-index: 100;
+				display: none;
 			}
 		</style>
 	</head>
 	<body>
-    <div class="config_view">{{config}}</div>
-    <div id="example"></div>
+		<div id="hint"></div>
+		<div class="config_view">{{config}}</div>
+		<div id="example"></div>
+		<script>
+			function hint(msg, time = 1500) {
+				let hintDom = document.querySelector("#hint");
+				hintDom.style.display = "block";
+				hintDom.innerHTML = msg;
+				setTimeout(() => {
+					hintDom.style.display = "none";
+					hintDom.innerHTML = "";
+				}, time);
+			}
+		</script>
 		<script type="text/babel">
 			class Upload extends React.Component {
 				constructor(props) {
@@ -62,55 +144,195 @@
 					this.state = { file: null, files: [] };
 				}
 				inputFileClick = () => {
-          let input_file = this.refs.input_file;
-          input_file.click();
-				}
-        upload = () => {
+					let input_file = this.refs.input_file;
+					input_file.click();
+				};
+				upload = () => {
 					let that = this;
-          let file = this.refs.input_file.files[0];
+
+					let token = document.querySelector("#token_text").value;
+					if (!token) return hint("请先登录！");
+					let file = that.refs.input_file.files[0];
 					let fm = new FormData();
-					fm.set('file', file)
-          axios.post('/storage/upload/image',fm,{
-						headers: {
-							'Content-type': 'multipart/form-data'
-						}
-					}).then(res=>{
-						let temp = that.state.files;
-						temp.push(res.data.path)
-            that.setState({
-							files: temp
+					fm.set("file", file);
+					axios
+						.post("/storage/upload/image", fm, {
+							headers: {
+								"Content-type": "multipart/form-data",
+								authorization: `look-dj ${token}`,
+							},
 						})
-          })
-        }
+						.then((res) => {
+							console.log(res.data);
+							if (res.data.msg) hint(res.data.msg);
+							if (res.data.code === 200) {
+								let temp = that.state.files;
+								temp.push(res.data.path);
+								that.setState({
+									files: temp,
+								});
+							}
+						});
+				};
 				delete(url) {
+					let token = document.querySelector("#token_text").value;
+					if (!token) return hint("请先登录！");
 					let name = url;
-					axios.post('/storage/delete/image',{name}).then(res=>{
-						console.log(res);
-					})
+					axios
+						.post(
+							"/storage/delete/image",
+							{ name },
+							{
+								headers: {
+									authorization: `look-dj ${token}`,
+								},
+							}
+						)
+						.then((res) => {
+							if (res.data.msg) hint(res.data.msg);
+							console.log(res.data);
+						});
+				}
+				test() {
+					let token = document.querySelector("#token_text").value;
+					if (!token) return hint("请先登录！");
+					axios
+						.post(
+							"/storage/test",
+							{},
+							{
+								headers: {
+									authorization: `look-dj ${token}`,
+								},
+							}
+						)
+						.then((res) => {
+							console.log(res.data);
+						});
 				}
 				render() {
 					return (
 						<div className="box">
-							<input type="file" id="input_file" ref="input_file"  onChange={this.upload}/>
+							<input
+								type="file"
+								id="input_file"
+								ref="input_file"
+								onChange={this.upload}
+							/>
 							<div
 								className="upload"
 								onClick={this.inputFileClick}
 							>
 								上传
 							</div>
-							<ul>{
-								this.state.files.map(file => {
-									return (<li key={file} className="li">
-										文件名 ===> {file} 
-										<div className="delete" onClick={this.delete.bind(this, file)}>删除</div>
-									</li>)
-								})
-							}</ul>
+							<ul>
+								{this.state.files.map((file) => {
+									return (
+										<li key={file} className="li">
+											<div className="filename">
+												文件名 ===> {file}
+											</div>
+											<a
+												href={file}
+												target="_blank"
+												className="img_a"
+											>
+												预览
+											</a>
+											<div
+												className="delete"
+												onClick={this.delete.bind(
+													this,
+													file
+												)}
+											>
+												删除
+											</div>
+										</li>
+									);
+								})}
+							</ul>
+							<button
+								className="btn mt-1"
+								onClick={this.test.bind(this)}
+							>
+								验证token
+							</button>
 						</div>
 					);
 				}
 			}
-			ReactDOM.render(<Upload />, document.getElementById("example"));
+			class Login extends React.Component {
+				constructor(props) {
+					super(props);
+					this.state = { account: "root", pass: "123123", token: "" };
+				}
+				inputAccount(e) {
+					this.setState({
+						account: e.target.value,
+					});
+				}
+				inputPass(e) {
+					this.setState({
+						pass: e.target.value,
+					});
+				}
+				login() {
+					let that = this;
+					let { account, pass } = that.state;
+					axios
+						.post("/storage/login", { account, pass })
+						.then((res) => {
+							if (res.data.code !== 200)
+								return console.log(res.data.msg);
+							that.setState({
+								token: res.data.storageToken,
+							});
+						});
+				}
+				setToken(e) {
+					console.log(e.target.value);
+				}
+				render() {
+					return (
+						<div className="login_box">
+							<div className="login_form">
+								<input
+									type="text"
+									placeholder="账号"
+									value={this.state.account}
+									onChange={this.inputAccount.bind(this)}
+								/>
+								<input
+									type="text"
+									placeholder="密码"
+									value={this.state.pass}
+									onChange={this.inputPass.bind(this)}
+								/>
+								<button
+									className="login_btn btn"
+									onClick={this.login.bind(this)}
+								>
+									登录
+								</button>
+								<input
+									type="hidden"
+									id="token_text"
+									value={this.state.token}
+									onChange={this.setToken.bind(this)}
+								/>
+							</div>
+						</div>
+					);
+				}
+			}
+			ReactDOM.render(
+				<div>
+					<Login />
+					<Upload />
+				</div>,
+				document.getElementById("example")
+			);
 		</script>
 	</body>
 </html>

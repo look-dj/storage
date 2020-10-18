@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 let algorithm = "aes-192-cbc";
-let salt = "WXYZabcdefhijkmnprstwxyz";
+let salt = "mjn6TASS2zedrNx42JarDDiJ";
 const util = {
 	encode: function (text, secret) {
 		let key = crypto.scryptSync(secret, salt, 24);
