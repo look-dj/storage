@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 module.exports = (app) => {
-	app.post("/upload/image", async function (req, res) {
+	app.post("/storage/upload/image", async function (req, res) {
     // 存到数据库
 		let insertId = await saveFileToDb(app, req);
 		if (!insertId) {
@@ -21,7 +21,7 @@ module.exports = (app) => {
 		}
 		console.log("更新图片信息成功");
 	});
-	app.post("/delete/image", async function (req, res) {
+	app.post("/storage/delete/image", async function (req, res) {
 		// 没有权限
 		// 开始删除
 		let name = req.body.name;

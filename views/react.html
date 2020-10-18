@@ -9,6 +9,10 @@
 		<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.20.0/axios.min.js"></script>
 		<style>
 			*{margin: 0;padding: 0;}
+      .config_view{
+        margin-left: 100px;
+        margin-top: 50px;
+      }
 			.box{
 				margin-left: 100px;
 			}
@@ -49,7 +53,8 @@
 		</style>
 	</head>
 	<body>
-		<div id="example"></div>
+    <div class="config_view">{{config}}</div>
+    <div id="example"></div>
 		<script type="text/babel">
 			class Upload extends React.Component {
 				constructor(props) {

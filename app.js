@@ -3,8 +3,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
 const app = express();
-const ejs = require("ejs");
-const cors = require("cors");
+const nunjucks = require("nunjucks");
 const bodyParser = require("body-parser");
 
 let router = require("./routes/index.js"); // 路由
@@ -14,13 +13,15 @@ config(app);
 plugins(app);
 app.set("views", path.join(__dirname, "views"));
 //设置模板引擎为ejs
-app.set("view engine", "ejs");
+nunjucks.configure('views', {
+  autoescape: true,
+  express: app
+});
 //为html扩展名注册ejs
-app.engine("html", ejs.renderFile);
+app.set('view engine', 'html');
 let obj = multer({
 	dest: app.config.savePath,
 });
-app.use(cors());
 app.use(obj.any());
 app.use(express.json());
 app.use(
