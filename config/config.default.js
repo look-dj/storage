@@ -12,7 +12,7 @@ module.exports = (appInfo) => {
 	 * @type {Egg.EggAppConfig}
 	 **/
 	const config = (exports = {});
-
+  config.luinxPass="8si7DrXx4Tx2JZDN";
 	// use for cookie sign key, should change to your own and keep security
 	config.keys = appInfo.name + "_1603011385388_3417";
 	config.tokenSecret = "dsdsdsdsdshjkshjkdsh";
