@@ -5,9 +5,9 @@ const Controller = require("egg").Service;
 
 class StorageService extends Controller {
 	async validAuth(authorization) {
-    let { app, config } = this;
-    let token = authorization.split(" ")[1];
-    let account = app.decode(token, config.tokenSecret);
+		let { app, config } = this;
+		let token = authorization.split(" ")[1];
+		let account = app.decode(token, config.tokenSecret);
 		if (!account) return false;
 		try {
 			await app.mysql.get("user", { account });
@@ -24,7 +24,7 @@ class StorageService extends Controller {
 		let token = app.encode(info.account, config.tokenSecret);
 		return { msg: "登录成功", state: true, data: { token } };
 	}
-	async uploadImage(stream) {
+	async imageUpload(stream) {
 		let { app, config, ctx } = this;
 		let date = new Date().valueOf();
 		let { insertId } = await app.mysql.insert("file_list", {
@@ -59,7 +59,7 @@ class StorageService extends Controller {
 		}
 		return { msg: "保存图片出现错误" };
 	}
-	async deleteImage({ name }) {
+	async imageDelete({ name }) {
 		let { app, config } = this;
 		let filename = path.parse(name).base;
 		let filepath = path.join(
@@ -81,6 +81,20 @@ class StorageService extends Controller {
 			console.log(e);
 			return { msg: "删除图片失败，请稍后重试" };
 		}
+	}
+	async imageList({ limit, offset }) {
+		let { app } = this;
+		let sql = "SELECT * FROM `file_list`";
+		let allImages = await app.mysql.query(sql);
+		sql = sql += " LIMIT ? OFFSET ?";
+		let result = await app.mysql.query(sql, [limit, limit * offset]);
+		if (result.length > 0)
+			return {
+				msg: "获取数据成功",
+				state: true,
+				data: { data: result, total: allImages.length },
+			};
+		return { msg: "暂时还没有数据", state: true };
 	}
 }
 function awaitWriteStream(stream, writeStream) {

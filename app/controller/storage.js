@@ -10,18 +10,25 @@ class StorageController extends Controller {
 		if (result.state) return ctx.success(result.msg, result.data);
 		ctx.err(result.msg);
 	}
-	async uploadImage() {
+	async imageUpload() {
 		const { ctx, service } = this;
 		const stream = await ctx.getFileStream();
-		let result = await service.storage.uploadImage(stream);
+		let result = await service.storage.imageUpload(stream);
 		if (result.state) return ctx.success(result.msg, result.data);
 		ctx.err(result.msg);
 	}
-	async deleteImage() {
-    const { ctx, service } = this;
-    let params = ctx.request.body;
-		let result = await service.storage.deleteImage(params);
+	async imageDelete() {
+		const { ctx, service } = this;
+		let params = ctx.request.body;
+		let result = await service.storage.imageDelete(params);
 		if (result.state) return ctx.success(result.msg);
+		ctx.err(result.msg);
+	}
+	async imageList() {
+		const { ctx, service } = this;
+		let params = ctx.request.body;
+		let result = await service.storage.imageList(params);
+		if (result.state) return ctx.success(result.msg, result.data || {});
 		ctx.err(result.msg);
 	}
 }

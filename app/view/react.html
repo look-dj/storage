@@ -97,7 +97,6 @@
 
 			.btn {
 				display: block;
-				min-width: 80px;
 				height: 30px;
 				line-height: 30px;
 				background-color: #0094ff;
@@ -106,6 +105,8 @@
 				border-radius: 4px;
 				text-align: center;
 				cursor: pointer;
+				padding: 0 8px;
+				min-width: 65px;
 			}
 			.login_btn {
 				margin: 0 auto;
@@ -127,6 +128,9 @@
 				z-index: 100;
 				display: none;
 			}
+			.list_box {
+				margin-left: 100px;
+			}
 		</style>
 	</head>
 	<body>
@@ -147,7 +151,7 @@
 			class Upload extends React.Component {
 				constructor(props) {
 					super(props);
-					this.state = { file: null, files: [], src: "" ,fileKey: 0};
+					this.state = { file: null, files: [], src: "", fileKey: 0 };
 				}
 				inputFileClick = () => {
 					let input_file = this.refs.input_file;
@@ -160,7 +164,7 @@
 					let fm = new FormData();
 					fm.set("file", that.state.file);
 					axios
-						.post("/storage/upload/image", fm, {
+						.post("/storage/image/upload", fm, {
 							headers: {
 								"Content-type": "multipart/form-data",
 								authorization: `look-dj ${token}`,
@@ -175,7 +179,7 @@
 								that.setState({
 									files: temp,
 									file: null,
-                });
+								});
 							}
 						});
 				}
@@ -185,7 +189,7 @@
 					let name = url;
 					axios
 						.post(
-							"/storage/delete/image",
+							"/storage/image/delete",
 							{ name },
 							{
 								headers: {
@@ -232,8 +236,8 @@
 								<input
 									type="file"
 									id="input_file"
-                  ref="input_file"
-                  key={this.state.fileKey}
+									ref="input_file"
+									key={this.state.fileKey}
 									onChange={this.getFile.bind(this)}
 								/>
 								<div
@@ -322,10 +326,10 @@
 						});
 				}
 				setToken(e) {
-          console.log(e.target.value);
-          this.setState({
-            token: e.target.value
-          })
+					console.log(e.target.value);
+					this.setState({
+						token: e.target.value,
+					});
 				}
 				render() {
 					return (
@@ -360,10 +364,56 @@
 					);
 				}
 			}
+			class Imagelist extends React.Component {
+				constructor(props) {
+					super(props);
+					this.state = { imageList: [] };
+				}
+				getImageList() {
+					let token = document.querySelector("#token_text").value;
+					if (!token) return hint("请先登录！");
+					let that = this;
+					axios
+						.post(
+							"/storage/image/list",
+							{limit:10,offset: 2},
+							{
+								headers: {
+									authorization: `look-dj ${token}`,
+								},
+							}
+						)
+						.then((res) => {
+              console.log(res.data)
+							that.setState({
+								imageList: res.data.data,
+							});
+						});
+				}
+				render() {
+					return (
+						<div className="list_box">
+							<button
+								className="btn mt-1"
+								id="getImageList"
+								onClick={this.getImageList.bind(this)}
+							>
+								获取图片列表
+							</button>
+							<ul className="imageList">
+								{this.state.imageList.map((image) => {
+									return <li key={image.id}>{image.link}</li>;
+								})}
+							</ul>
+						</div>
+					);
+				}
+			}
 			ReactDOM.render(
 				<div>
 					<Login />
 					<Upload />
+					<Imagelist />
 				</div>,
 				document.getElementById("example")
 			);
