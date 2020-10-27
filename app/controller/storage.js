@@ -5,7 +5,7 @@ const Controller = require("egg").Controller;
 class StorageController extends Controller {
 	async login() {
 		const { ctx, service } = this;
-		let params = ctx.request.body;
+    let params = ctx.request.body;
 		let result = await service.storage.login(params);
 		if (result.state) return ctx.success(result.msg, result.data);
 		ctx.err(result.msg);

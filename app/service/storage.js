@@ -19,7 +19,7 @@ class StorageService extends Controller {
 	}
 	async login({ account, pass }) {
 		let { app, config } = this;
-		let info = await app.mysql.get("user", { account });
+    let info = await app.mysql.get("user", { account });
 		if (info.pass !== pass) return { msg: "登录失败，账号或密码错误" };
 		let token = app.encode(info.account, config.tokenSecret);
 		return { msg: "登录成功", state: true, data: { token } };
