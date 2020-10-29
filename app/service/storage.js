@@ -86,6 +86,7 @@ class StorageService extends Controller {
 		let { app } = this;
 		let sql = "SELECT * FROM `file_list`";
 		let allImages = await app.mysql.query(sql);
+		console.log(allImages)
 		sql = sql += " LIMIT ? OFFSET ?";
 		let result = await app.mysql.query(sql, [limit, limit * offset]);
 		if (result.length > 0)

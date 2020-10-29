@@ -131,6 +131,30 @@
 			.list_box {
 				margin-left: 100px;
 			}
+			.sql_box{
+				margin-left: 100px;
+			}
+			.sql_btn_box{
+				display: flex;
+				margin-top: 20px;
+			}
+			.sql_btn_box > .btn{
+				text-transform: uppercase;
+				margin-right: 10px;
+			}
+			.sql_ul > li {
+				margin-top: 10px;
+			}
+			.li_a{
+				padding-left: 20px;
+				color: #0094ff;
+			}
+			p{
+				margin: 10px 0;
+				text-transform: uppercase;
+				color: #0094ff;
+				font-size: 16px;
+			}
 		</style>
 	</head>
 	<body>
@@ -207,7 +231,7 @@
 					if (!token) return hint("请先登录！");
 					axios
 						.post(
-							"/storage/test",
+							"/storage/image/list",
 							{},
 							{
 								headers: {
@@ -232,6 +256,7 @@
 				render() {
 					return (
 						<div className="box">
+						<p>上传图片</p>
 							<div className="file_box">
 								<input
 									type="file"
@@ -266,7 +291,7 @@
 											<a
 												href={file}
 												target="_blank"
-												className="img_a"
+												className="li_a"
 											>
 												预览
 											</a>
@@ -334,6 +359,7 @@
 				render() {
 					return (
 						<div className="login_box">
+						<p>登录获得token (必须要有token)</p>
 							<div className="login_form">
 								<input
 									type="text"
@@ -409,11 +435,65 @@
 					);
 				}
 			}
+			class Sql extends React.Component {
+				constructor(props){
+					super(props);
+					this.state = {list:[]}
+				}
+				generateSql(p){
+					let that = this;
+					let token = document.querySelector("#token_text").value;
+					if (!token) return hint("请先登录！");
+					axios
+						.post("/storage/sql/" + p, {}, {
+							headers: {
+								authorization: `look-dj ${token}`,
+							},
+						}).then(res=>{
+							let temp = that.state.list;
+							temp.push(res.data.link)
+							that.setState({
+								list: temp
+							})
+						})
+				}
+				faction(){
+					this.generateSql('faction')
+				}
+				realm(){
+					this.generateSql('realm')
+				}
+				role(){
+					this.generateSql('role')
+				}
+				render(){
+					return (
+					<div className="sql_box">
+					<p>生成sql并访问</p>
+						<div className="sql_btn_box">
+							<button className="btn" onClick={this.faction.bind(this)}>faction</button>
+							<button className="btn" onClick={this.realm.bind(this)}>realm</button>
+							<button className="btn" onClick={this.role.bind(this)}>role</button>
+						</div>
+						<ul className="sql_ul">
+							{
+								this.state.list.map((item,idx) => {
+									return (
+										<li className="li" key={idx}>{item} <a target="_blank" className="li_a" href={item}>访问</a></li>
+									)
+								})
+							}
+						</ul>
+					</div>
+					)
+				}
+			}
 			ReactDOM.render(
 				<div>
 					<Login />
 					<Upload />
 					<Imagelist />
+					<Sql />
 				</div>,
 				document.getElementById("example")
 			);
