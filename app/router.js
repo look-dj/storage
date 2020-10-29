@@ -12,5 +12,6 @@ module.exports = (app) => {
 	router.post("/storage/image/list", controller.storage.imageList);
 	router.post("/storage/sql/faction", controller.sql.faction);
 	router.post("/storage/sql/role", controller.sql.role);
-	router.post("/storage/sql/realm", controller.sql.realm);
+  router.post("/storage/sql/realm", controller.sql.realm);
+  router.post("/storage/file/rename", controller.file.rename);
 };

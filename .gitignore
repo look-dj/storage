@@ -13,6 +13,7 @@ run/
 typings/
 .nyc_output/
 app/public/uploads/
+app/public/temp/
 .github/
 test/
 *.txt
