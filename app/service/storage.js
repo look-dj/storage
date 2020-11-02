@@ -19,7 +19,7 @@ class StorageService extends Controller {
 	}
 	async login({ account, pass }) {
 		let { app, config } = this;
-    let info = await app.mysql.get("user", { account });
+		let info = await app.mysql.get("user", { account });
 		if (info.pass !== pass) return { msg: "登录失败，账号或密码错误" };
 		let token = app.encode(info.account, config.tokenSecret);
 		return { msg: "登录成功", state: true, data: { token } };
@@ -86,14 +86,17 @@ class StorageService extends Controller {
 		let { app } = this;
 		let sql = "SELECT * FROM `file_list`";
 		let allImages = await app.mysql.query(sql);
-		console.log(allImages)
+		console.log(allImages);
 		sql = sql += " LIMIT ? OFFSET ?";
 		let result = await app.mysql.query(sql, [limit, limit * offset]);
 		if (result.length > 0)
 			return {
 				msg: "获取数据成功",
 				state: true,
-				data: { data: result, total: allImages.length },
+				data: {
+					data: result,
+					total: Math.ceil(allImages.length / limit),
+				},
 			};
 		return { msg: "暂时还没有数据", state: true };
 	}

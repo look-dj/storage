@@ -2,7 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const Service = require("egg").Service;
-const filePath = path.resolve(__dirname, '../public')
+const filePath = path.resolve(__dirname, "../public");
 const faction = [
 	"离阳",
 	"西蜀",
@@ -135,9 +135,9 @@ class SqlService extends Service {
 		let that = this;
 		let { config } = that;
 		return new Promise(async (resolve, reject) => {
-			let images =await that.imgs();
+			let images = await that.imgs();
 			let src = path.join(filePath, "/faction.txt");
-			console.log(src)
+			console.log(src);
 			function random(num) {
 				return Math.floor(Math.random() * num);
 			}
@@ -157,15 +157,15 @@ class SqlService extends Service {
 				let status_len = status.length;
 				let faction_intro_len = faction_intro.length;
 				let year_len = year.length;
-        let name_len = name.length;
-        let image_len = images.length;
+				let name_len = name.length;
+				let image_len = images.length;
 				let s = `(${i},'${faction[random(faction_len)]}','${
 					status[random(status_len)]
 				}','${faction_intro[random(faction_intro_len)]}','${
 					year[random(year_len)]
-				}','${
-					name[random(name_len)]
-				}','${images[random(image_len)]}','1600241901485','${factionId}'),\n`;
+				}','${name[random(name_len)]}','${
+					images[random(image_len)]
+				}','1600241901485','${factionId}'),\n`;
 				str += s;
 			}
 			fs.writeFile(src, str, function (err) {
@@ -174,8 +174,8 @@ class SqlService extends Service {
 					reject(err);
 					return;
 				}
-				let link = `${config.site}/public/${path.parse(src).base}`
-				resolve({link });
+				let link = `${config.site}/public/${path.parse(src).base}`;
+				resolve({ link });
 			});
 		});
 	}
@@ -184,7 +184,7 @@ class SqlService extends Service {
 		let { config } = that;
 		// (1,'','dd','dd','男','北凉','dd','1600241012046',9),
 		return new Promise(async (resolve, reject) => {
-			let images =await that.imgs();
+			let images = await that.imgs();
 			let src = path.join(filePath, "role.txt");
 			function random(num) {
 				return Math.floor(Math.random() * num);
@@ -196,11 +196,13 @@ class SqlService extends Service {
 				let faction_len = faction.length;
 				let name_len = name.length;
 				let role_intro_len = role_intro.length;
-        let realm_len = realm.length;
-        let image_len = images.length;
-				let s = `(${i},'${images[random(image_len)]}','${name[random(name_len)]}','${
-					role_intro[random(role_intro_len)]
-				}','${sex[random(2)]}','${faction[random(faction_len)]}','${
+				let realm_len = realm.length;
+				let image_len = images.length;
+				let s = `(${i},'${images[random(image_len)]}','${
+					name[random(name_len)]
+				}','${role_intro[random(role_intro_len)]}','${
+					sex[random(2)]
+				}','${faction[random(faction_len)]}','${
 					realm[random(realm_len)]
 				}','1600241901485','${roleId}'),\n`;
 				str += s;
@@ -211,8 +213,8 @@ class SqlService extends Service {
 					reject(err);
 					return;
 				}
-				let link = `${config.site}/public/${path.parse(src).base}`
-				resolve({link });
+				let link = `${config.site}/public/${path.parse(src).base}`;
+				resolve({ link });
 			});
 		});
 	}
@@ -220,7 +222,7 @@ class SqlService extends Service {
 		let that = this;
 		let { config } = that;
 		return new Promise(async (resolve, reject) => {
-			let images =await that.imgs();
+			let images = await that.imgs();
 			let src = path.join(filePath, "realm.txt");
 			function random(num) {
 				return Math.floor(Math.random() * num);
@@ -229,8 +231,8 @@ class SqlService extends Service {
 			let realmId = "9";
 			for (let i = 1; i < 31; i++) {
 				let realm_intro_len = realm_intro.length;
-        let realm_len = realm.length;
-        let image_len = images.length;
+				let realm_len = realm.length;
+				let image_len = images.length;
 				let s = `(${i},'1600241901485','${realm[random(realm_len)]}','${
 					realm_intro[random(realm_intro_len)]
 				}','${images[random(image_len)]}','${realmId}'),\n`;
@@ -242,30 +244,30 @@ class SqlService extends Service {
 					reject(err);
 					return;
 				}
-				let link = `${config.site}/public/${path.parse(src).base}`
-				resolve({link });
+				let link = `${config.site}/public/${path.parse(src).base}`;
+				resolve({ link });
 			});
 		});
-  }
-  imgs(state=false){
+	}
+	imgs(state = false) {
 		let { app } = this;
-    return new Promise(async (resolve, reject) => {
-			let images =await app.mysql.select('file_list');
-      let src = path.join(filePath, "images.txt");
-      let arr = [];
-      images.forEach(item=>{
-        arr.push(item.link)
-      })
-      resolve(arr)
-			if(!state) return;
-      fs.writeFile(src, arr, function (err) {
+		return new Promise(async (resolve, reject) => {
+			let images = await app.mysql.select("file_list");
+			let src = path.join(filePath, "images.txt");
+			let arr = [];
+			images.forEach((item) => {
+				arr.push(item.link);
+			});
+			resolve(arr);
+			if (!state) return;
+			fs.writeFile(src, arr, function (err) {
 				if (err) {
 					console.log(err);
 					reject(err);
 					return;
 				}
 			});
-    })
-  }
+		});
+	}
 }
 module.exports = SqlService;
