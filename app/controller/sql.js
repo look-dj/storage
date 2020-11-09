@@ -8,6 +8,12 @@ class HomeController extends Controller {
 		let res = await service.sql.faction();
 		if (res) return ctx.success("生成sql成功", res);
 		ctx.err("生成sql失败");
+  }
+  async weapon() {
+		const { ctx, service } = this;
+		let res = await service.sql.weapon();
+		if (res) return ctx.success("生成sql成功", res);
+		ctx.err("生成sql失败");
 	}
 	async realm() {
 		const { ctx, service } = this;

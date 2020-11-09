@@ -470,6 +470,9 @@
 				}
 				role() {
 					this.generateSql("role");
+        }
+        weapon() {
+					this.generateSql("weapon");
 				}
 				rename() {
 					let that = this;
@@ -511,6 +514,12 @@
 									onClick={this.role.bind(this)}
 								>
 									role
+                </button>
+                <button
+									className="btn"
+									onClick={this.weapon.bind(this)}
+								>
+									weapon
 								</button>
 							</div>
 							<button
